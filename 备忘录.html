@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>待办事项</title>
+	<style>
+body,html,span,input,h4{
+	margin: 0;
+	padding: 0;
+}
+html{
+	height: 100%;
+}
+body{
+	height: 100%;
+}
+.zheng{
+	width: 100%;
+	height: 100%;
+	/*background: #ccc;*/
+	background:url(images/summer.jpg) no-repeat center/cover;
+}
+.box{
+	width: 100%;
+	height: 80px;
+	background:rgba(0,0,0,0.6);
+}
+.conner{
+	width: 1000px;
+	height: 100%;
+	margin: 0 auto;
+	text-align: center;
+	line-height: 80px;
+}
+#placeholder{
+	width: 500px;
+	height: 50px;
+	border-radius: 6px;
+	border:none;
+	box-shadow: 0 1px 0 rgba(255,255,255,0.24), 0 1px 6px rgba(0,0,0,0.45) inset;
+	padding-left: 10px;
+	box-sizing:border-box;
+}
+.conner span{
+	font-size: 30px;
+	color: #fff;
+	vertical-align: middle;
+}
+.daban,.wancheng{
+	width: 600px;
+	min-height:30px;
+	margin: 0 auto;
+	line-height: 30px;
+	/*background: green;*/
+}
+.top{
+	width: 100%;
+	height: 60px;
+	line-height: 60px;
+
+}
+.daban h4,.wancheng h4{
+	float: left;
+	vertical-align: middle;
+}
+.daban h4~span,.wancheng h4~span{
+	display: block;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	float: right;
+	background: #eee;
+	text-align: center;
+	line-height: 30px;
+	margin: 15px;
+}
+.inputs{
+	background: transparent;
+	margin-left: 5px;
+	border: 0;
+}
+.xinzeng,.wanc{
+	width: 590px;
+	height: auto;
+	line-height: 50px;
+	background: #fff;
+	border-radius: 8px;
+	margin: 5px auto;
+	border-left: 5px solid green;
+	box-sizing:border-box;
+}
+.xinzeng{
+	opacity: 0.8;
+}
+.wanc{
+	opacity: 0.6;
+}
+.del{
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	box-shadow: 0 3px 3px 5px #ccc inset;
+	display: block;
+	float: right;
+	margin: 15px 15px 15px auto;
+	cursor: pointer;
+}
+.duoxuan{
+	margin: auto 15px;
+}
+.daiban,.wanch{
+	overflow: hidden;
+}
+.xiugai{
+	width: 500px;
+	height: auto;
+	border: none;
+}
+	</style>
+</head>
+<body>
+	<div class="zheng">
+		<img src="青.svg" alt="">
+		<div class="box">
+			<div class="conner">
+				<span>backlog</span>
+				<input type="text" id="placeholder" placeholder="请输入待办事项">
+			</div>
+		</div>
+		<div class="bot">
+			<div class="daban">
+				<div class="top">
+					<h4>待办事项:</h4><span>0</span>
+				</div>
+				<div class="daiban"></div>
+				
+			</div>
+			<div class="wancheng">
+				<div class="top">
+					<h4>完成事项:</h4><span>0</span>
+				</div>
+				<div class="wanch"></div>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+	var daban=document.querySelector(".daban");
+	var wancheng=document.querySelector(".wancheng");
+	var daiq=document.querySelector(".daban .top span");
+	var wc=document.querySelector(".wancheng .top span");
+	var daiban=document.querySelector(".daiban");
+	// alert(daiban.length);
+	var wanch=document.querySelector(".wanch");
+	// alert(wanch.length)
+	placeholder.onkeydown=function(e){
+		if(e.keyCode==13){
+			var val=this.value;
+			if(val.length==0){
+				alert("内容不能为空");
+				return;
+			}
+			var data=getData();//查询数据
+			data.push({"title":val,"stalus":false});//把获取到的数据追加到json格式的数组中
+			this.value="";
+			saveData(data);
+			reload();
+		}
+	}
+	//查询数据
+	function getData(){
+		var data=JSON.parse(localStorage.getItem("todo"));
+		return data||[];
+	}
+	//保存数据
+	function saveData(data){
+		//将内容设置成[{tada:"输入的值"}]
+		localStorage.setItem("todo",JSON.stringify(data));
+	}
+	reload()
+	//重新数据，重写到dom中
+	function reload(){
+		var nowStr="",
+			comStr="",
+			nowNum=0,
+			comNum=0;
+		var data=getData();//获取本地存储的数据
+		for (var i = 0; i < data.length; i++) {
+			if(data[i].stalus==false){
+				nowStr+="<div class='xinzeng'><input type='checkbox' onclick=changeStaus("+i+",true) class='duoxuan'><input class='xiugai' contenteditable onblur=changeContent("+i+",this.value) type='text' class='inputs' value="+data[i].title+"><span class='del' onclick=del("+i+")></span></div>";
+				nowNum++;
+			}else{
+				comStr+="<div class='wanc'><input onclick=changeStaus("+i+",false) type='checkbox' class='duoxuan'><input class='xiugai'  type='text' contenteditable onblur=changeContent("+i+",this.value) class='inputs' value="+data[i].title+"><span class='del'  onclick=del("+i+")></span></div>";
+				comNum++;
+			}
+		};
+		daiban.innerHTML=nowStr;
+		wanch.innerHTML=comStr;
+		daiq.innerHTML=nowNum;
+		wc.innerHTML=comNum;
+	}
+	// localStorage.clear()
+	//点击函数 移上移下
+	function changeStaus(i,sta){
+		var data=getData();
+		data[i].stalus=sta;
+		saveData(data);
+		reload();
+	}
+	//修改
+	function changeContent(i,text){
+		var data=getData();
+		data[i].title=text;
+		saveData(data);
+	}
+	//删除
+	function del(i){
+		var data=getData();
+		data.splice(i,1);
+		saveData(data);
+		reload();
+	}
+</script>
+</html>
